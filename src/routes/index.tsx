@@ -1,6 +1,6 @@
 import React from 'react';
 import {NavigationContainer} from '@react-navigation/native';
-import StackRoutes from './stack.router';
+import StackRoutes from './stack.routes';
 
 
 const Routes = () => (
