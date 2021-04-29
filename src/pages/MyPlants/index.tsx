@@ -1,19 +1,23 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, View, Image, Text, FlatList, ScrollView, Alert } from 'react-native';
 
-import { StyleSheet, View, Image, Text, FlatList } from 'react-native';
+
 import Header from '../../components/Header';
-import colors from '../../styles/colors';
-
-import waterdrop from '../../assets/waterdrop.png';
-import fonts from '../../styles/fonts';
-import { LoadingPlant, PlantProps } from '../../libs/storage';
-import { useEffect } from 'react';
+import { LoadingPlant, PlantProps, RemovePlant, StoragePlantProps } from '../../libs/storage';
 import { formatDistance } from 'date-fns';
 import pt_Br from 'date-fns/locale/pt-BR';
-import { SvgUri } from 'react-native-svg';
-import { format } from 'date-fns/esm';
 import PlantsCardSecondery from '../../components/PlantsCardSecondery';
+import Loading from '../../components/Loading';
+
+
+import colors from '../../styles/colors';
+import waterdrop from '../../assets/waterdrop.png';
+import fonts from '../../styles/fonts';
+
+
+
+
 
 export default function MyPlants() {
 
@@ -38,37 +42,65 @@ export default function MyPlants() {
         }
         GetMyPlants()
     },[])
+
+    function handleRemove(plant:PlantProps){
+        Alert.alert('Remover', `Deseja mesmo remover a ${plant.name} ?`, [
+            {
+                text:'Não 🙏',
+                style:'cancel'
+            },
+            {
+                text:'Sim 😥',
+                onPress: async () => {
+                    try{
+                        await RemovePlant(String(plant.id)) 
+                        setMyPlants((oldData)=>(
+                           oldData.filter((item)=> item.id != plant.id )
+                       ))
+                    }catch(error){
+                        Alert.alert('Não foi possivel remover!')
+                    }
+                }
+            }
+        ])
+    }
+
+    if(loading)
+      return  <Loading/>
     
-    return (
-        <View style={style.container}>
-            <Header />
-            <View style={style.warring}>
-                <Image source={waterdrop} style={style.waterImg} />
-                <Text style={style.warringText}>
-                    {nextWater}
-                </Text>
+      return (
+            <View style={style.container}>
+                <Header title={`Minhas ${'\n'}Plantinhas`} name={''}/>
+                <View style={style.warring}>
+                    <Image source={waterdrop} style={style.waterImg} />
+                    <Text style={style.warringText}>
+                        {nextWater}
+                    </Text>
+                    
+                </View>
+                <View >
+                    <Text style={style.title}>
+                        Próximas Regadas
+                    </Text>
+                    
+                </View>
+                <FlatList 
+                data={myPlants} 
+                keyExtractor={(item)=> String(item.id)}
+                renderItem={({item})=>(
+                    
+                        <PlantsCardSecondery
+                            handleRemove={() => handleRemove(item)}
+                            data={item}
+                        />
+        
+                )}
+                showsVerticalScrollIndicator={false}
+             
                 
-            </View>
-            <View >
-                <Text style={style.title}>
-                    Próximas Regadas
-                </Text>
                 
-            </View>
-            <FlatList 
-            data={myPlants} 
-            keyExtractor={(item)=> String(item.id)}
-            renderItem={({item})=>(
-                <PlantsCardSecondery
-                    data={item}
                 />
-            )}
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={style.list}
-            
-            
-            />
-        </View>
+            </View>
     )
 }
 
@@ -108,7 +140,5 @@ const style = StyleSheet.create({
        paddingVertical:30
         
     },
-    list:{
-        paddingVertical:10
-    }
+    
 })

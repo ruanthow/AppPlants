@@ -9,33 +9,24 @@ import colors from '../../styles/colors';
 import userPng from '../../assets/profile.png';
 import fonts from '../../styles/fonts';
 
+interface Headerprops{
+    title:string;
+    name:string | undefined;
+}
 
 
-export default function Header(){
-
-    const [name, setName]= useState<string>()
-
-    useEffect(() => {
-     async function GetStorage() {
-        const user = await AsyncStorage.getItem('@plantmanager:user')
-        if(!name)
-       setName(user || '')
-       }
-       GetStorage();
-    }, [name]);
+export default function Header({title, name}:Headerprops){
 
 
     return(
-        
-            <View style={style.container}>
-                <View >
-                    <Text style={style.greeting}>Ola!,</Text> 
-                    <Text style={style.userName}>{name}</Text>
-                </View>
-
-                <Image style={style.img} source={userPng}/>
+        <View style={style.container}>
+            <View >
+                <Text style={style.greeting}>{title}</Text> 
+                <Text style={style.userName}>{name}</Text>
             </View>
-        
+
+            <Image style={style.img} source={userPng}/>
+        </View>
     )
 }
 
@@ -46,7 +37,7 @@ const style = StyleSheet.create({
         flexDirection:'row',
         justifyContent:'space-between',
         alignItems:'center',
-        paddingVertical: 20,
+        paddingVertical: 5,
         marginTop:getStatusBarHeight(),
         
     },
@@ -58,7 +49,7 @@ const style = StyleSheet.create({
     greeting:{
         fontSize:32,
         color: colors.heading,
-        fontFamily: fonts.text
+        fontFamily: fonts.heading
     },
     userName:{
         fontSize:32,

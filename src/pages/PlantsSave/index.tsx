@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, {useState} from 'react';
 import {
     Text,
     View,
@@ -20,12 +20,11 @@ import waterdrop from '../../assets/waterdrop.png';
 import Button from '../../components/Button';
 import colors from '../../styles/colors';
 import fonts from '../../styles/fonts';
-import { useState } from 'react';
+
 
 import { isBefore } from 'date-fns';
-import ptBr from 'date-fns/locale/pt-BR';
 import { format } from 'date-fns/esm';
-import savePlant, { LoadingPlant, PlantProps } from '../../libs/storage';
+import savePlant, {  PlantProps } from '../../libs/storage';
 
 interface Params{
     plant: PlantProps
@@ -35,9 +34,8 @@ export default function PlantsSave() {
     const [selectedDateTime, setSelectedDateTime] = useState(new Date());
     const [showDatePicker,setShowDatePicker] = useState(Platform.OS == 'ios');
     const navegation = useNavigation()
-    useEffect(() => {
-        console.log(selectedDateTime)
-    }, [selectedDateTime]);
+    
+   
 
     const route = useRoute();
     const { plant } = route.params as Params;

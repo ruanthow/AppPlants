@@ -1,5 +1,5 @@
 import React from 'react';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createBottomTabNavigator,BottomTabView } from '@react-navigation/bottom-tabs';
 import colors from '../styles/colors';
 import {MaterialIcons} from '@expo/vector-icons'
 import PlantSelect from '../pages/PlantSelect';
@@ -9,6 +9,7 @@ const AppTabs = createBottomTabNavigator();
 
 const AuthRoutes = () => {
     return (
+        
         <AppTabs.Navigator
             tabBarOptions={{
                 activeTintColor: colors.green,
@@ -47,9 +48,6 @@ const AuthRoutes = () => {
                     ))
                 }}
            />
-
-
-
         </AppTabs.Navigator>
     )
 }

@@ -4,7 +4,9 @@ import {
     StyleSheet, 
     FlatList, 
     Text,
-    ActivityIndicator
+    ActivityIndicator,
+    ScrollView,
+    
 } from 'react-native';
 import { useNavigation } from '@react-navigation/core';
 
@@ -18,6 +20,7 @@ import api from '../../services/api';
 import colors from '../../styles/colors';
 import fonts from '../../styles/fonts';
 import { PlantProps } from '../../libs/storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 
@@ -32,6 +35,8 @@ export default function PlantSelect(){
     const [envoriment, setEnvoriment] = useState<EnvorimentProps[]>([]);
     const [plants, setPlants] = useState<PlantProps[]>([]);
     const [filteredPlants, setFilteredPlants] = useState<PlantProps[]>([])
+    const [userName, setUserName]= useState<string>()
+
     const [envorimentSelected, setEnvorimentSelected] = useState('all');
     const [loading, setLoading] = useState(true);
     const navegation = useNavigation();
@@ -63,9 +68,7 @@ export default function PlantSelect(){
             return;
             setIsLoadingMore(true);
             setPage(page + 1);
-            PlantsData()
-        
-        
+            PlantsData()     
     }
 
     useEffect(() => {
@@ -87,6 +90,19 @@ export default function PlantSelect(){
     useEffect(() => {
          PlantsData();
     }, []);
+
+    
+    
+
+    useEffect(() => {
+     async function GetStorage() {
+        const user = await AsyncStorage.getItem('@plantmanager:user')
+        if(!userName)
+       setUserName(user || '')
+       }
+       GetStorage();
+    }, [userName]);
+
 
     async function PlantsData(){
         const { data } =  await api.get(`plants?_sort=name&_order=asc&_page=${page}&_limit=8`);
@@ -110,56 +126,57 @@ export default function PlantSelect(){
     
 
     return(
-        <View style={style.container}>    
-            <View style={style.header}>
-                <Header/>
-                <Text style={style.title}>
-                    Em qual ambiente
-                </Text>
-                <Text style={style.subtitle}>
-                    você quer colocar sua planta ?
-                </Text>
-            </View>
-            <View>
-                <FlatList 
-                keyExtractor={(item)=> String(item.key)}
-                data={envoriment}
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={style.envorimenteList}
-                renderItem={({item})=>( 
-                    <EnviromentButton
-                        title={item.title}
-                        isActive={item.key === envorimentSelected}
-                        onPress={()=> handleSelectedEnvoriment(item.key)}  
+            <View style={style.container}>    
+                <View style={style.header}>
+                    <Header title={"Olá"} name={userName}/>
+                    <Text style={style.title}>
+                        Em qual ambiente
+                    </Text>
+                    <Text style={style.subtitle}>
+                        você quer colocar sua planta ?
+                    </Text>
+                </View>
+                <View>
+                    <FlatList 
+                    keyExtractor={(item)=> String(item.key)}
+                    data={envoriment}
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    contentContainerStyle={style.envorimenteList}
+                    renderItem={({item})=>( 
+                        <EnviromentButton
+                            title={item.title}
+                            isActive={item.key === envorimentSelected}
+                            onPress={()=> handleSelectedEnvoriment(item.key)}  
+                        />
+                    )}
                     />
-                )}
-                />
-            </View>
-            <View style={style.plants}>
-                <FlatList
-                data={filteredPlants} 
-                keyExtractor={(item)=> String(item.id)}
-                numColumns={2}
-                showsVerticalScrollIndicator={false}
-                onEndReachedThreshold={0.1}
-                onEndReached={({distanceFromEnd}) => handlePlantsDataMore(distanceFromEnd)}
-                renderItem={(item)=>(
-                    <PlantsCardPrimary
-                        data={item.item}
-                        onPress={()=> handlePlantSelect(item.item)}
+                </View>
+                <View style={style.plants}>
+                    <FlatList
+                    data={filteredPlants} 
+                    keyExtractor={(item)=> String(item.id)}
+                    numColumns={2}
+                    showsVerticalScrollIndicator={false}
+                    onEndReachedThreshold={0.1}
+                    onEndReached={({distanceFromEnd}) => handlePlantsDataMore(distanceFromEnd)}
+                
+                    renderItem={(item)=>(
+                        <PlantsCardPrimary
+                            data={item.item}
+                            onPress={()=> handlePlantSelect(item.item)}
+                        />
+                    )}
+                    ListFooterComponent={
+                        isLoadingMore ?
+                        <ActivityIndicator color={colors.green}/>
+                        :
+                        <></>
+                    }
                     />
-                )}
-                ListFooterComponent={
-                    isLoadingMore ?
-                    <ActivityIndicator color={colors.green}/>
-                    :
-                    <></>
-                }
-                />
+                </View>       
             </View>
-           
-       </View>
+       
     )
 }
 
