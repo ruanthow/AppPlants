@@ -1,22 +1,26 @@
 import React, {useEffect, useState} from 'react';
 
-import {TouchableOpacity, Text, StyleSheet, View, SafeAreaView, Image} from 'react-native';
+import { Text, StyleSheet, View, Image} from 'react-native';
 import { getStatusBarHeight } from 'react-native-iphone-x-helper';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 
 import colors from '../../styles/colors';
-import userPng from '../../assets/profile.png';
+
 import fonts from '../../styles/fonts';
+import { RectButton } from 'react-native-gesture-handler';
+import { useNavigation } from '@react-navigation/core';
 
 interface Headerprops{
     title:string;
     name:string | undefined;
+    photo:string | undefined;
+    changPhoto: () => Promise<void>;
 }
 
 
-export default function Header({title, name}:Headerprops){
-
+export default function Header({title, name, photo, changPhoto}:Headerprops){
+    const navegation = useNavigation()
 
     return(
         <View style={style.container}>
@@ -24,8 +28,12 @@ export default function Header({title, name}:Headerprops){
                 <Text style={style.greeting}>{title}</Text> 
                 <Text style={style.userName}>{name}</Text>
             </View>
-
-            <Image style={style.img} source={userPng}/>
+            <RectButton
+                onPress={changPhoto}
+            >
+                <Image style={style.img} source={{uri:photo}}/>
+            </RectButton>
+            
         </View>
     )
 }

@@ -5,7 +5,6 @@ import {
     FlatList, 
     Text,
     ActivityIndicator,
-    ScrollView,
     
 } from 'react-native';
 import { useNavigation } from '@react-navigation/core';
@@ -14,14 +13,14 @@ import Header from '../../components/Header';
 import PlantsCardPrimary from '../../components/PlantsCardPrimary';
 import EnviromentButton from '../EnviromentButton';
 import Load from '../../components/Loading';
-
+import photoGeneric from '../../assets/waterdrop.png';
 import api from '../../services/api';
 
 import colors from '../../styles/colors';
 import fonts from '../../styles/fonts';
 import { PlantProps } from '../../libs/storage';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import * as ImagePicker from 'expo-image-picker';
 
 
 
@@ -35,8 +34,9 @@ export default function PlantSelect(){
     const [envoriment, setEnvoriment] = useState<EnvorimentProps[]>([]);
     const [plants, setPlants] = useState<PlantProps[]>([]);
     const [filteredPlants, setFilteredPlants] = useState<PlantProps[]>([])
+    
     const [userName, setUserName]= useState<string>()
-
+    const [avatar, setAvatar]= useState<string>()
     const [envorimentSelected, setEnvorimentSelected] = useState('all');
     const [loading, setLoading] = useState(true);
     const navegation = useNavigation();
@@ -97,12 +97,35 @@ export default function PlantSelect(){
     useEffect(() => {
      async function GetStorage() {
         const user = await AsyncStorage.getItem('@plantmanager:user')
+        const userAvatar = await AsyncStorage.getItem('@plantmanager:avatar')
         if(!userName)
-       setUserName(user || '')
-       }
+        setUserName(user || undefined)
+        if(!avatar)
+        setAvatar(userAvatar || undefined)
+        }
+       
        GetStorage();
-    }, [userName]);
 
+    }, [userName, avatar]);
+
+   
+   
+        async function pickImage(){
+        
+            let result = await ImagePicker.launchImageLibraryAsync({
+                mediaTypes: ImagePicker.MediaTypeOptions.All,
+                allowsEditing:true,
+                quality:1,
+                aspect:[5,5]
+            })
+            
+            if(!result.cancelled){
+                await AsyncStorage.setItem('@plantmanager:avatar', result.uri)
+                setAvatar(result.uri)
+                console.log(result)
+            }      
+        } 
+    
 
     async function PlantsData(){
         const { data } =  await api.get(`plants?_sort=name&_order=asc&_page=${page}&_limit=8`);
@@ -128,7 +151,7 @@ export default function PlantSelect(){
     return(
             <View style={style.container}>    
                 <View style={style.header}>
-                    <Header title={"Olá"} name={userName}/>
+                    <Header title={"Olá"} name={userName} photo={avatar ? avatar : undefined } changPhoto={pickImage}/>
                     <Text style={style.title}>
                         Em qual ambiente
                     </Text>
@@ -183,7 +206,7 @@ export default function PlantSelect(){
 
 const style = StyleSheet.create({
     container:{
-        flex: 1,
+        flex:1,
         backgroundColor:colors.background
     },
     header:{
